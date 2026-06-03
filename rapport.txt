@@ -1,0 +1,8 @@
+==== rapport de machine ====
+
+nom de la machine : Hellos-MacBook-Pro.local
+nous sommes le : Lun  1 jui 2026 20:20:03 EDT
+tu es ici  /Users/hello/ange
+utilisatrice   :hello
+
+===== fin du rapport =====
