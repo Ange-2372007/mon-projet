@@ -96,4 +96,7 @@ Ces résultats montrent que le choix d'une image de base adaptée constitue une 
 
 **Ange Yasmir Fouodji Djouda **
 
-- GitHub : https://github.com/ton-profil
+- GitHub : https://github.com/Ange-2372007
+
+- Projet :
+https://github.com/Ange-2372007/mon-projet
