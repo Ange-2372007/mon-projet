@@ -65,6 +65,14 @@ Cette etape consiste a figer les versions des composants afin de garantir la rep
 Cette étape consiste à remplacer l'image de base `ubuntu:22.04` par l'image officielle `python:3.12-slim`. Déjà équipée de `Python` et `pip`, cette image est particulièrement adaptée à l'exécution d'une application Flask.
 
 Le choix de cette image permet de réduire considérablement la taille de l'image Docker ainsi que le nombre de paquets installés. Par conséquent, la surface d'attaque est réduite, ce qui entraîne une diminution significative du nombre de vulnérabilités détectées.
+     
+     d.H3 
+     ### H3 – Construction multi-stage
+
+Cette étape introduit la "construction multi-stage", qui permet d'exclure les outils de construction de l'image d'exécution. Le Dockerfile est désormais composé de deux images de base. La première, appelée "builder", est utilisée pour installer les dépendances Python nécessaires à l'application. La seconde est destinée à la création de l'image finale `projet:h3`, qui ne contient que les éléments indispensables à son exécution.
+
+Cette approche permet de séparer les phases de construction et d'exécution, qui étaient jusqu'à présent réunies dans une seule image. Grâce à cette optimisation, les fichiers et composants utilisés uniquement lors de la construction ne sont plus présents dans l'image finale. Il en résulte une réduction de la taille de l'image, tout en conservant les mêmes fonctionnalités et les mêmes dépendances nécessaires à l'application.
+
 
 
 6. Resultats
@@ -72,17 +80,22 @@ Le choix de cette image permet de réduire considérablement la taille de l'imag
 #H0
 - Taille de l'image : 201.22 Mo
 - Nombre de paquets : 246
-- Total des vulnérabilités : 2892
+- Total des vulnérabilités : 3342
 
 #H1
 - Taille de l'image : 203.85 Mo
 - Nombre de paquets : 246
-- Total des vulnérabilités : 2707
+- Total des vulnérabilités : 3156
 
 #H2
 - Taille de l'image : 45.92 Mo
 - Nombre de paquets : 95
-- Total des vulnérabilités : 142
+- Total des vulnérabilités : 148
+
+#H3
+-Taille de l'image :42.71
+-Nombre de paquets :95
+-Total de vulnerabilités :148
 
 7.Analyse des resultats
 
@@ -90,6 +103,8 @@ Le choix de cette image permet de réduire considérablement la taille de l'imag
 L'analyse de ces résultats montre qu'au cours des différentes étapes de durcissement, il y a eu une diminution progressive de la taille de l'image, du nombre de paquets installés et du nombre de vulnérabilités détectées.
 
 Ces résultats montrent que le choix d'une image de base adaptée constitue une mesure efficace pour améliorer la sécurité d'une image Docker. En effet, plus une image est légère et contient uniquement les composants nécessaires, moins elle présente de surface d'attaque et de vulnérabilités potentielles.
+
+
 
 
 #Auteur
