@@ -1,0 +1,83 @@
+name: Security Pipeline H7
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Recuperer le projet
+        uses: actions/checkout@v4
+
+      - name: Construire l'image H7
+        run: docker build -t projet:h7 ./H7
+
+      - name: Scanner H7 avec Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'projet:h7'
+          format: 'json'
+          output: 'trivy-results.json'
+          severity: 'CRITICAL'
+          exit-code: '0'
+
+      - name: Verifier le seuil de CVE critiques
+        run: |
+          CRITICAL=$(jq '[.Results[]?.Vulnerabilities[]?] | length' trivy-results.json)
+
+          echo "Nombre de CVE critiques : $CRITICAL"
+
+          if [ "$CRITICAL" -gt 2 ]; then
+            echo "ECHEC : le seuil maximal de 2 CVE critiques est depasse."
+            exit 1
+          fi
+
+          echo "SUCCES : le seuil de CVE critiques est respecte."
+
+      - name: Installer Syft
+        uses: anchore/sbom-action/download-syft@v0
+
+      - name: Generer le SBOM
+          ls -lh sbom-h7.json
+
+      - name: Se connecter a GHCR
+        uses: docker/login-action@v3
+        with:
+
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tagger l'image H7 pour GHCR
+        run: |
+          docker tag projet:h7 ghcr.io/ange-2372007/mon-projet:h7-ci
+
+      - name: Publier l'image H7 sur GHCR
+        run: |
+          docker push ghcr.io/ange-2372007/mon-projet:h7-ci
+
+      - name: Installer Cosign
+        uses: sigstore/cosign-installer@v4.1.0
+      - name: Recuperer le digest de l'image
+        id: digest
+        run: |
+          DIGEST=$(docker buildx imagetools inspect \
+            ghcr.io/ange-2372007/mon-projet:h7-ci \
+            --format '{{json .Manifest.Digest}}' | tr -d '"')
+
+          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+          echo "Digest de l'image : $DIGEST"
+
+      - name: Signer l'image avec Cosign
+        run: |
+          cosign sign --yes \
+            ghcr.io/ange-2372007/mon-projet@${{ steps.digest.outputs.digest }}
