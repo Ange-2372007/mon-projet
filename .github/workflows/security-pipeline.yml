@@ -47,8 +47,9 @@ jobs:
         uses: anchore/sbom-action/download-syft@v0
 
       - name: Generer le SBOM
+        run: |
+          syft projet:h7 -o cyclonedx-json > sbom-h7.json
           ls -lh sbom-h7.json
-
       - name: Se connecter a GHCR
         uses: docker/login-action@v3
         with:
